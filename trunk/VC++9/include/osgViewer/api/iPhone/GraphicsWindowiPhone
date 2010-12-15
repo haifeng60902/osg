@@ -1,0 +1,136 @@
+/*
+ *  GraphicsWindowiPhone.h
+ *  OSG_2.6EX
+ *
+ *  Created by 김홍준 on 08. 12. 24.
+ *  Copyright 2008 __MyCompanyName__. All rights reserved.
+ *
+ */
+
+#ifndef OSGVIEWER_GRAPHICSWINDOWIPHONE
+#define OSGVIEWER_GRAPHICSWINDOWIPHONE 1
+
+
+#include <osgViewer/GraphicsWindow>
+
+#include <OpenGLES/EAGL.h>
+#include <OpenGLES/ES1/gl.h>
+#include <OpenGLES/ES1/glext.h>
+#include <QuartzCore/QuartzCore.h>
+
+namespace osgViewer
+{
+	
+	class GraphicsWindowiPhone : public osgViewer::GraphicsWindow
+	{
+    public:
+		
+        GraphicsWindowiPhone(osg::GraphicsContext::Traits* traits):
+		_valid(false),
+		_initialized(false),
+		_realized(false),
+		_ownsWindow(true),
+		_currentCursor(RightArrowCursor)
+        {
+            _traits = traits;
+			
+            init();
+            
+            if (valid())
+            {
+                setState( new osg::State );
+                getState()->setGraphicsContext(this);
+				
+                if (_traits.valid() && _traits->sharedContext)
+                {
+                    getState()->setContextID( _traits->sharedContext->getState()->getContextID() );
+                    incrementContextIDUsageCount( getState()->getContextID() );   
+                }
+                else
+                {
+                    getState()->setContextID( osg::GraphicsContext::createNewContextID() );
+                }
+            }
+        }
+		
+        virtual bool isSameKindAs(const Object* object) const { return dynamic_cast<const GraphicsWindowiPhone*>(object)!=0; }
+        virtual const char* libraryName() const { return "osgViewer"; }
+        virtual const char* className() const { return "GraphicsWindowCarbon"; }
+		
+        virtual bool valid() const { return _valid; }
+		
+        /** Realise the GraphicsContext.*/
+        virtual bool realizeImplementation();
+		
+        /** Return true if the graphics context has been realised and is ready to use.*/
+        virtual bool isRealizedImplementation() const { return _realized; }
+		
+        /** Close the graphics context.*/
+        virtual void closeImplementation();
+		
+        /** Make this graphics context current.*/
+        virtual bool makeCurrentImplementation();
+        
+        /** Release the graphics context.*/
+        virtual bool releaseContextImplementation();
+		
+        /** Swap the front and back buffers.*/
+        virtual void swapBuffersImplementation();
+        
+        /** Get focus on if the pointer is in this window.*/
+        virtual void grabFocusIfPointerInWindow();
+        
+        void requestClose() { _closeRequested = true; }
+        
+        virtual void resizedImplementation(int x, int y, int width, int height);
+        
+		
+		//deu+
+		static void setCAEAGLLayer(CAEAGLLayer *_eaglLayer);
+		
+		//deu+
+		EAGLContext* getAGLContext() { return _context; }
+		
+    protected:
+		
+        void init();
+        
+        void transformMouseXY(float& x, float& y);
+		
+        bool            _valid;
+        bool            _initialized;
+        bool            _realized;
+        bool            _useWindowDecoration;
+		
+        bool            _ownsWindow;
+        
+		//deu+
+		EAGLContext*	_context;
+		
+        int             _windowTitleHeight;    
+		
+		//deu+
+		/* OpenGL names for the renderbuffer and framebuffers used to render to this view */
+		GLuint viewRenderbuffer, viewFramebuffer;
+		//deu+
+		/* OpenGL name for the depth buffer that is attached to viewFramebuffer, if it exists (0 if it does not exist) */
+		GLuint depthRenderbuffer;
+		
+		//deu+
+		/* The pixel dimensions of the backbuffer */
+		GLint backingWidth;
+		GLint backingHeight;
+		
+		//deu+
+		static CAEAGLLayer *eaglLayer;
+		
+    private:        
+        
+        bool            _closeRequested;
+        UInt32          _lastModifierKeys;
+        MouseCursor     _currentCursor;
+	};
+	
+}
+
+#endif
