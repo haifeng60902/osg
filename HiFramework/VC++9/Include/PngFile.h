@@ -13,6 +13,8 @@
 #include <string.h>
 #include <windows.h>
 
+// test ...
+
 void PngFileInitialize (HWND hwnd) ;
 BOOL PngFileOpenDlg (HWND hwnd, PTSTR pstrFileName, PTSTR pstrTitleName) ;
 BOOL PngFileSaveDlg (HWND hwnd, PTSTR pstrFileName, PTSTR pstrTitleName) ;
